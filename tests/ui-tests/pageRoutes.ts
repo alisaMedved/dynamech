@@ -8,5 +8,11 @@ export class PageRoutes {
     logger.info(`${this.baseClientURL}`)
     return `${this.baseClientURL}/workspace${workspaceId ? `/${workspaceId}` : '' }`
   };
+  public static checkout(workspaceId: string, source='b2b'): string {
+    return `${this.baseClientURL}/checkout?source=${source}&workspaceId=${workspaceId}`
+  }
+  public static confirmation(orderId: string): string {
+    return `${this.baseClientURL}/checkout/confirmation?orderId=${orderId}`
+  }
 
 }

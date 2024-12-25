@@ -3,6 +3,7 @@ import {WorkspacePage} from "../pages-and-components/pages/workspace.page";
 import {Product} from "../../shared/controllers/product.controller";
 import {sleep} from "../../shared/utils/helpers";
 import {logger} from "../../shared/logs.config";
+import {ProductForAdd} from "../pages-and-components/pages/productSearch.page";
 
 
 test.describe("check actions with workspaces", () => {
@@ -45,7 +46,7 @@ test.describe("check actions with workspaces", () => {
         await workspacePage.goto({});
         await workspacePage.createNewWorkspace();
         const productSearchPage= await workspacePage.choseWayToAddProduct('product_search', userPage);
-        const productsForChecked = []
+        const productsForChecked: ProductForAdd[] = []
         for await (let productForAddition of productsForAddition) {
             await productSearchPage.searchProduct(productForAddition.productMpn)
             await productSearchPage.checkSearchedProduct(true)
@@ -64,6 +65,4 @@ test.describe("check actions with workspaces", () => {
         /** logout **/
         await logoutUser(userBrowserContext, userPage);
     })
-
-
 })

@@ -5,7 +5,7 @@
     "lint": "yarn prettier . --write"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.0.3",
+    "@faker-js/faker": "^9.3.0",
     "@playwright/test": "^1.48.0",
     "@types/node": "^22.7.5",
     "allure-commandline": "^2.30.0",

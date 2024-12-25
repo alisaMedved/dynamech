@@ -2,8 +2,9 @@ import {type Page, type Locator, FrameLocator, expect} from "@playwright/test";
 import { BasePage } from "../base.page";
 import { PageRoutes } from "../../pageRoutes";
 import {logger} from "../../../shared/logs.config";
-import {ProductSearchPage} from "./productSearch.page";
-import {parseFloatPrice, parseTotalPrice} from "../../../shared/utils/functions";
+import {ProductForAdd, ProductSearchPage} from "./productSearch.page";
+import {parseFloatPrice, parsePriceWithCurrencySymbol, parseTotalPrice} from "../../../shared/utils/functions";
+import {CheckoutPage} from "./checkout.page";
 
 export enum WAYS_OF_PRODUCT_ADDITION {
   product_search,
@@ -27,6 +28,7 @@ export class WorkspacePage extends BasePage {
   blockOfSubtotals: Locator;
   subtotalQuantityValue: Locator;
   subtotalPriceValue: Locator;
+  checkoutBtn: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -43,6 +45,7 @@ export class WorkspacePage extends BasePage {
     this.blockOfSubtotals = this.page.locator('div[class^="_bottomline_"]').nth(1)
     this.subtotalQuantityValue = this.blockOfSubtotals.locator('div[class^="_total_"] > div[class^="_value_"]').nth(0)
     this.subtotalPriceValue = this.blockOfSubtotals.locator('div[class^="_total_"] > div[class^="_value_"]').nth(1)
+    this.checkoutBtn = this.page.locator('button').filter({hasText: 'Checkout'})
   }
 
   async goto(options: {workspaceId?: string}) {
@@ -114,7 +117,7 @@ export class WorkspacePage extends BasePage {
     }).toPass();
   }
 
-  async checkAddedProducts(products) {
+  async checkAddedProducts(products: ProductForAdd[]) {
     logger.info(`checkAddedProducts products ${JSON.stringify(products)}`)
     let i = 1;
     for await (let product of products) {
@@ -127,16 +130,24 @@ export class WorkspacePage extends BasePage {
     }
   }
 
-  async checkTotalAmounts(products) {
+  async checkTotalAmounts(products: ProductForAdd[]) {
     const subTotal = products.reduce((acc, elm) => {
-      acc.totalQuantity = acc.totalQuantity + elm.quantity
-      acc.subtotalPrice = acc.subtotalPrice + parseTotalPrice(elm.total).totalAmount
+      acc.totalQuantity = Math.round((acc.totalQuantity + elm.quantity) * 100)/100
+      acc.subtotalPrice = Math.round((acc.subtotalPrice + parseTotalPrice(elm.total).totalAmount) * 100) / 100
       return acc
     }, {totalQuantity: 0, subtotalPrice: 0})
     await expect(this.blockOfSubtotals).toBeVisible();
     const subtotalQuantityValue = await this.subtotalQuantityValue.innerText()
     expect(parseInt(subtotalQuantityValue)).toEqual(subTotal.totalQuantity)
     const subtotalPriceValue = await this.subtotalPriceValue.innerText()
-    expect(parseFloatPrice(subtotalPriceValue)).toEqual(subTotal.subtotalPrice)
+    expect(parseFloatPrice(parsePriceWithCurrencySymbol(subtotalPriceValue))).toEqual(subTotal.subtotalPrice)
+  }
+
+  async goToCheckout(userPage: Page) {
+    const checkoutPage = new CheckoutPage(userPage);
+    await this.checkoutBtn.click()
+    await checkoutPage.checkURL();
+    await checkoutPage.loadedPage();
+    return checkoutPage;
   }
 }
