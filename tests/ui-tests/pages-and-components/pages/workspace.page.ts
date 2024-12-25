@@ -3,7 +3,7 @@ import { BasePage } from "../base.page";
 import { PageRoutes } from "../../pageRoutes";
 import {logger} from "../../../shared/logs.config";
 import {ProductSearchPage} from "./productSearch.page";
-import {parseTotalPrice} from "../../../shared/utils/functions";
+import {parseFloatPrice, parseTotalPrice} from "../../../shared/utils/functions";
 
 export enum WAYS_OF_PRODUCT_ADDITION {
   product_search,
@@ -137,6 +137,6 @@ export class WorkspacePage extends BasePage {
     const subtotalQuantityValue = await this.subtotalQuantityValue.innerText()
     expect(parseInt(subtotalQuantityValue)).toEqual(subTotal.totalQuantity)
     const subtotalPriceValue = await this.subtotalPriceValue.innerText()
-    expect(parseFloat(subtotalPriceValue.slice(1).replace(' ', ''))).toEqual(subTotal.subtotalPrice)
+    expect(parseFloatPrice(subtotalPriceValue)).toEqual(subTotal.subtotalPrice)
   }
 }

@@ -62,6 +62,8 @@ test.describe("check actions with workspaces", () => {
         await sleep(4)
 
         /** logout **/
-        // await logoutUser(userBrowserContext, userPage);
+        await logoutUser(userBrowserContext, userPage);
     })
+
+
 })
