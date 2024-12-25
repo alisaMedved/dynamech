@@ -142,12 +142,4 @@ export class WorkspacePage extends BasePage {
     const subtotalPriceValue = await this.subtotalPriceValue.innerText()
     expect(parseFloatPrice(parsePriceWithCurrencySymbol(subtotalPriceValue))).toEqual(subTotal.subtotalPrice)
   }
-
-  async goToCheckout(userPage: Page) {
-    const checkoutPage = new CheckoutPage(userPage);
-    await this.checkoutBtn.click()
-    await checkoutPage.checkURL();
-    await checkoutPage.loadedPage();
-    return checkoutPage;
-  }
 }

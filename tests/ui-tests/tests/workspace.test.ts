@@ -1,7 +1,6 @@
 import {test} from "../fixtures/customerFixture";
 import {WorkspacePage} from "../pages-and-components/pages/workspace.page";
 import {Product} from "../../shared/controllers/product.controller";
-import {sleep} from "../../shared/utils/helpers";
 import {logger} from "../../shared/logs.config";
 import {ProductForAdd} from "../pages-and-components/pages/productSearch.page";
 
@@ -60,7 +59,6 @@ test.describe("check actions with workspaces", () => {
         await workspacePage.checkAddedProducts(productsForChecked)
 
         await workspacePage.checkTotalAmounts(productsForChecked)
-        await sleep(4)
 
         /** logout **/
         await logoutUser(userBrowserContext, userPage);
