@@ -4,6 +4,7 @@ import path from "path";
 // @ts-ignore
 import fs from "fs";
 import {logger} from "../logs.config";
+import {faker} from "@faker-js/faker";
 
 export const sleep = async (s: number) =>
   new Promise((resolve) => setTimeout(resolve, Math.round(1000 * s)));
@@ -21,14 +22,17 @@ export const generateUniqueId = (): number => {
 
 /** utils with Enum **/
 
-export function enumToArray(enumObject: any, keysOrValues: string) {
+type EnumKeyList<T> = (keyof T)[];
+type EnumValuesList<T> = T[keyof T][];
+
+export function enumToArray<T>(enumObject: T, keysOrValues: string): EnumKeyList<T> | EnumValuesList<T> {
   const array = Object.keys(enumObject);
   const resultLength = array.length / 2;
   switch (keysOrValues) {
     case "keys":
-      return array.slice(resultLength, resultLength * 2);
+      return array.slice(resultLength, resultLength * 2) as EnumKeyList<T>
     case "values":
-      return array.slice(0, resultLength);
+      return array.slice(0, resultLength) as EnumValuesList<T>
     default:
       throw new Error("Unknown keysOrValues");
   }
@@ -39,6 +43,25 @@ export function enumToArray(enumObject: any, keysOrValues: string) {
 export const randomElement = (array: string | any[]) => {
   return array[Math.floor(Math.random() * array.length)];
 };
+
+export function randomElements<T>(list: T[], amountOfItems: number = list.length): T[] {
+  if (amountOfItems == 0) return [];
+  if (amountOfItems == list.length) return list;
+  if (amountOfItems > list.length)
+    throw new Error(
+        `amountOfItems > array.length (amountOfItems = ${amountOfItems} ; array.length  = ${list.length})`,
+    );
+
+  let enabledOptions = list;
+  let result: T[] = [];
+  for (let i = 0; i < amountOfItems; i++) {
+    const randomIndex = Math.floor(Math.random() * enabledOptions.length);
+    const elm = enabledOptions[randomIndex];
+    result.push(elm);
+    enabledOptions.splice(randomIndex, 1);
+  }
+  return result;
+}
 
 /** utils with files **/
 

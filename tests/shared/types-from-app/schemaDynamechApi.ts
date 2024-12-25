@@ -9,3 +9,8 @@ export interface CustomerCredentials {
   email: string;
   password: string;
 }
+
+export interface Product {
+  productMpn: string;
+  quantity: number
+}

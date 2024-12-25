@@ -1,13 +1,17 @@
-import { Locator, Page } from "@playwright/test";
+import {Cookie, Page} from "@playwright/test";
 import { test_config } from "../../shared/test.config";
 import { PageRoutes } from "../pageRoutes";
+import {BaseComponent} from "./baseComponent.page";
+import {logger} from "../../shared/logs.config";
+import {StorageState} from "../types";
 
-export abstract class BasePage {
+export abstract class BasePage extends BaseComponent {
   page: Page;
   public readonly timeForWaitingLoadPage: number =
     test_config.timeoutsForUiTests.timeForWaitingLoadPage;
 
   protected constructor(page: Page) {
+    super(page);
     this.page = page;
   }
 
@@ -20,28 +24,27 @@ export abstract class BasePage {
     return this.page.url();
   }
 
-  async scroll({ x, y }: { x?: number; y?: number }) {
-    await this.page.mouse.wheel(x ?? 0, y ?? 0);
-  }
-
   async goToPageURL(urlPage: string) {
     await this.page.goto(urlPage);
     await this.loadedPage();
   }
 
-  async loadedElementOfPage(element: Locator) {
-    await element.waitFor({
-      state: "visible",
-      timeout: this.timeForWaitingLoadPage,
-    });
+  async logCookie(): Promise<{ storeFromPage: StorageState; cookiesFromPage: Array<Cookie> }> {
+    const storeFromPage: StorageState = await this.page.context().storageState();
+    const cookiesFromPage = await this.page.context().cookies();
+    logger.info(`${this.getClassName()} this.page.context().storageState() ${JSON.stringify(storeFromPage)}`);
+    logger.info(`${this.getClassName()} this.page.context().cookies() ${JSON.stringify(cookiesFromPage)}`);
+    return { storeFromPage, cookiesFromPage };
   }
 
-  async loadedElementArrayOfPage(elementArray: Locator[]) {
-    for (const element of elementArray) {
-      await this.loadedElementOfPage(element);
+  async isAuth(): Promise<boolean> {
+    const { storeFromPage } = await this.logCookie();
+    if (storeFromPage && storeFromPage?.cookies && Array.isArray(storeFromPage?.cookies)) {
+      return storeFromPage.cookies.some((cookie) => cookie.name === 'customer_token_hp') &&
+          storeFromPage.cookies.some((cookie) => cookie.name === 'customer_token_s')
     }
+    return false;
   }
 
-  abstract loadedPage(): Promise<void>;
   abstract route: Exclude<keyof typeof PageRoutes, "prototype">;
 }

@@ -1,4 +1,4 @@
-import { Customer, CustomerCredentials } from "../types-from-app";
+import { Customer } from "../types-from-app";
 
 export interface CustomerModel extends Customer {}
 
