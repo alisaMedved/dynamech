@@ -28,7 +28,7 @@ test.describe("check actions with workspaces", () => {
         await logoutUser(userBrowserContext, userPage);
     });
 
-    test('Check to add new products in workspace', async({
+    test('Check to add new products in workspace with Product Search', async({
                                                              getUserEnvironment,
                                                              browser,
                                                              logoutUser,
@@ -38,22 +38,29 @@ test.describe("check actions with workspaces", () => {
         const [user] = await getAuthorizedUser;
         const [{userPage, userBrowserContext}] = await getUserEnvironment(browser, [user]);
         const productsForAddition = Product.productsForAdditionToWorkspace(3)
-        logger.info(`productNumbers[0] ${JSON.stringify(productsForAddition)}`)
+        logger.info(`productsForAddition ${JSON.stringify(productsForAddition)}`)
 
         /** Act - Assertion**/
         const workspacePage = new WorkspacePage(userPage);
         await workspacePage.goto({});
         await workspacePage.createNewWorkspace();
         const productSearchPage= await workspacePage.choseWayToAddProduct('product_search', userPage);
-        await productSearchPage.searchProduct(productsForAddition[0].productMpn)
-        await productSearchPage.checkSearchedProduct(true)
-        await productSearchPage.setQuantity(productsForAddition[0].quantity)
-        const productPrices = await productSearchPage.choseRandomPrice()
-        await productSearchPage.addProductBtn.click()
+        const productsForChecked = []
+        for await (let productForAddition of productsForAddition) {
+            await productSearchPage.searchProduct(productForAddition.productMpn)
+            await productSearchPage.checkSearchedProduct(true)
+            await productSearchPage.setQuantity(productForAddition.quantity)
+            const productPrices = await productSearchPage.choseRandomPrice()
+            logger.info(`productPrices ${JSON.stringify(productPrices)}`)
+            await productSearchPage.addProductBtn.click()
+            productsForChecked.unshift({...productPrices, ...productForAddition})
+            await workspacePage.checkRowsCount(productsForChecked.length)
+        }
+        await workspacePage.checkAddedProducts(productsForChecked)
 
-        await workspacePage.checkAddedProducts({...productPrices, ...productsForAddition[0]})
-
+        await workspacePage.checkTotalAmounts(productsForChecked)
         await sleep(4)
+
         /** logout **/
         // await logoutUser(userBrowserContext, userPage);
     })

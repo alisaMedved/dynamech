@@ -1,9 +1,7 @@
-export function parseProductDetails(input: string): { price: string; total: string } {
-    const priceMatch = input.match(/Price:([€\d.]+)/);
-    const totalMatch = input.match(/Total:([€\d.]+)/);
-
+export function parseTotalPrice(totalPrice: string) {
     return {
-        price: priceMatch ? priceMatch[1] : '',
-        total: totalMatch ? totalMatch[1] : '',
-    };
+        totalPrice: totalPrice,
+        totalAmount: Math.round(parseFloat(totalPrice.slice(1).replace(' ', '')) * 100)/100,
+        totalCurrency: totalPrice.slice(0, 1)
+    }
 }

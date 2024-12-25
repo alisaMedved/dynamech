@@ -1,7 +1,6 @@
 import {type Page, type Locator, expect} from "@playwright/test";
 import {logger} from "../../../shared/logs.config";
 import {BaseComponent} from "../baseComponent.page";
-import {parseProductDetails} from "../../../shared/utils/functions";
 
 export class ProductSearchPage extends BaseComponent {
     page: Page;
@@ -23,7 +22,7 @@ export class ProductSearchPage extends BaseComponent {
         this.searchedProduct = this.page.locator('div[class^="_found_"]')
         this.failMessage = this.searchedProduct.locator('div[class^="_notFound"] > div[class^="_state_"]').filter({ hasText: 'Not found' })
         this.quantityTextbox = this.searchedProduct.locator('div').filter({ hasText: /^Quantity/ }).getByRole('textbox')
-        this.blocksOfPrice = this.searchedProduct.locator('div[class^="_sample_"]').filter({ hasText: 'Price' }).filter({ hasText: 'Total' })
+        this.blocksOfPrice = this.searchedProduct.locator('div[class^="_sample_"]')
         this.addProductBtn = this.searchedProduct.locator('button').filter({ hasText: 'Add to workspace' })
     }
 
@@ -48,9 +47,16 @@ export class ProductSearchPage extends BaseComponent {
     async choseRandomPrice() {
         const count = await this.blocksOfPrice.count()
         const randomIndex = Math.floor(Math.random() * count)
-        const text = await this.blocksOfPrice.nth(randomIndex).textContent()
-        await this.blocksOfPrice.nth(randomIndex).click()
-        return parseProductDetails(text)
+        const blockOfPriceLocator = this.blocksOfPrice.nth(randomIndex)
+        await blockOfPriceLocator.click()
+        const text = blockOfPriceLocator.locator('div[class^="_value_"] > div[class^="_text_"]')
+        const price = await text.nth(0).textContent();
+        const total = await text.nth(1).textContent();
+        logger.info(`choseRandomPrice price ${price} total ${total}`)
+        return {
+            price,
+            total
+        };
     }
     async checkSearchedProduct(isFound: boolean) {
         if (isFound) {
