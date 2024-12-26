@@ -10,7 +10,7 @@ import {Country} from "../../shared/types-from-app";
 
 test.describe('Checkout page', () => {
     /**
-     * Почему mode: 'serial'? Ответ в readme
+     * Почему mode: 'serial'? Ответ в readme в разделе ## Fixture
      */
     test.describe.configure({ mode: 'serial', retries: 1 })
 

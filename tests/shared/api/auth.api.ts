@@ -2,7 +2,7 @@ import {BaseApi} from "./base.api";
 import {test_config} from "../test.config";
 import {CustomerCredentials} from "../types-from-app";
 
-export class DynamechApi extends BaseApi {
+export class AuthApi extends BaseApi {
     readonly baseUrl = test_config.http.dynamechUrlHttp;
 
     async loginCustomer(user: CustomerCredentials) {

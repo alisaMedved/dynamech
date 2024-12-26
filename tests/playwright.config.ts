@@ -4,7 +4,7 @@ import { test_config } from "./shared/test.config";
 export default defineConfig({
   outputDir: "./test-results",
   testDir: ".",
-  fullyParallel: true,
+  fullyParallel: false,
   retries: 0,
   workers: test_config.workers,
   reporter: [
@@ -19,8 +19,8 @@ export default defineConfig({
     ],
   ],
   use: {
-    trace: "on",
-    screenshot: "on",
+    trace: "retain-on-failure",
+    screenshot: "only-on-failure",
     video: "off",
     testIdAttribute: "data-qa-ref",
     ignoreHTTPSErrors: true,

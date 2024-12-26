@@ -2,7 +2,7 @@ import {type Page, type Locator, FrameLocator, expect, BrowserContext} from "@pl
 import { BasePage } from "../base.page";
 import { PageRoutes } from "../../pageRoutes";
 import {logger} from "../../../shared/logs.config";
-import {ProductForAdd, ProductSearchPage} from "./productSearch.page";
+import {ProductForAdd, ProductSearchPage} from "../components/productSearch.page";
 import {parseFloatPrice, parsePriceWithCurrencySymbol, parseTotalPrice} from "../../../shared/utils/functions";
 import {CheckoutPage} from "./checkout.page";
 

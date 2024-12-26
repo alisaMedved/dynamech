@@ -1,9 +1,7 @@
-import {Cookie, Page} from "@playwright/test";
+import {Page} from "@playwright/test";
 import { test_config } from "../../shared/test.config";
 import { PageRoutes } from "../pageRoutes";
 import {BaseComponent} from "./baseComponent.page";
-import {logger} from "../../shared/logs.config";
-import {StorageState} from "../types";
 
 export abstract class BasePage extends BaseComponent {
   page: Page;

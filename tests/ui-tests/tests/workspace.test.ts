@@ -2,12 +2,12 @@ import {test} from "../fixtures/customerFixture";
 import {WorkspacePage} from "../pages-and-components/pages/workspace.page";
 import {Product} from "../../shared/controllers/product.controller";
 import {logger} from "../../shared/logs.config";
-import {ProductForAdd} from "../pages-and-components/pages/productSearch.page";
+import {ProductForAdd} from "../pages-and-components/components/productSearch.page";
 
 
 test.describe("check actions with workspaces", () => {
     /**
-     * Почему mode: 'serial'? Ответ в readme
+     * Почему mode: 'serial'? Ответ в readme в разделе ## Fixture
      */
     test.describe.configure({ mode: 'serial', retries: 1 })
 
