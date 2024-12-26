@@ -35,6 +35,7 @@ export class Customer {
     }
 
     public static async logout() {
-
+        const dynamechApi = new DynamechApi()
+        return await dynamechApi.logoutCustomer()
     }
 }

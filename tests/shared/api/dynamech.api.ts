@@ -21,4 +21,20 @@ export class DynamechApi extends BaseApi {
         });
         return response;
     }
+
+    async logoutCustomer() {
+        return await super.doRequest({
+            method: "POST",
+            requestUrl: `${this.baseUrl}/customer/logout`,
+            options: {
+                headers: {
+                    withCredentials: 'true',
+                    'sec-fetch-dest': 'empty',
+                    'sec-fetch-mode': 'cors',
+                    'sec-fetch-site': 'same-origin'
+
+                }
+            }
+        })
+    }
 }

@@ -6,6 +6,10 @@ import {ProductForAdd} from "../pages-and-components/pages/productSearch.page";
 
 
 test.describe("check actions with workspaces", () => {
+    /**
+     * Почему mode: 'serial'? Ответ в readme
+     */
+    test.describe.configure({ mode: 'serial', retries: 1 })
 
     test('Check create new workspace', async ({
                                                                                                    getUserEnvironment,

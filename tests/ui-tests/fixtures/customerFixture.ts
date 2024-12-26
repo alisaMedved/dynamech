@@ -96,7 +96,8 @@ export const test = base.extend<Fixtures>({
     logoutUser: async ({}, use) => {
         await use(async (userBrowserContext: BrowserContext, userPage: Page) => {
             BaseApi.uiTestContext = userBrowserContext.request;
-            // запрос логаута
+            await Customer.logout();
+
             await userPage.evaluate(() => window.localStorage.clear());
             await userBrowserContext.close();
             BaseApi.uiTestContext = null;

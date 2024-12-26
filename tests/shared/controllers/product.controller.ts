@@ -1,18 +1,15 @@
-import {DEFAULT_PRODUCT_NUMBERS, DEFAULT_PRODUCT_NUMBERS_LIST, ProductModel} from "../models/product.model";
-import {randomElements} from "../utils/helpers";
-import {CustomerModel, TEST_EMAIL_DOMAIN} from "../models/customer.model";
+import {DEFAULT_PRODUCT_NUMBERS_LIST, ProductModel} from "../models/product.model";
+import {randomElement, randomElements} from "../utils/helpers";
 import {logger} from "../logs.config";
 import {Builder} from "builder-pattern";
 import {faker} from "@faker-js/faker";
 
 
 export class Product {
-    public static getRandomProductNumbers(count= 1): Array<keyof typeof DEFAULT_PRODUCT_NUMBERS> {
-        //@ts-ignore
+    public static getRandomProductNumbers(count= 1): Array<string> {
         return randomElements(DEFAULT_PRODUCT_NUMBERS_LIST, count)
     }
-    public static getRandomProductNumber(): keyof typeof DEFAULT_PRODUCT_NUMBERS {
-        //@ts-ignore
+    public static getRandomProductNumber(): string {
         return randomElement(DEFAULT_PRODUCT_NUMBERS_LIST)
     }
     public static productsForAdditionToWorkspace(count: number) {

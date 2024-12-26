@@ -52,7 +52,7 @@ export function randomElements<T>(list: T[], amountOfItems: number = list.length
         `amountOfItems > array.length (amountOfItems = ${amountOfItems} ; array.length  = ${list.length})`,
     );
 
-  let enabledOptions = list;
+  let enabledOptions = new Array(...list);
   let result: T[] = [];
   for (let i = 0; i < amountOfItems; i++) {
     const randomIndex = Math.floor(Math.random() * enabledOptions.length);
@@ -60,6 +60,9 @@ export function randomElements<T>(list: T[], amountOfItems: number = list.length
     result.push(elm);
     enabledOptions.splice(randomIndex, 1);
   }
+  logger.info(`enabledOptions ${enabledOptions}`)
+  logger.info(`result ${result}`)
+  logger.info(`list ${list}`)
   return result;
 }
 

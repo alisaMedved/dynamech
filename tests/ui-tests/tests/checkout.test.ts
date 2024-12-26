@@ -8,6 +8,12 @@ import {newAddressIdSelectOption} from "../pages-and-components/pages/checkout.p
 import {DEFAULT_COUNTRIES} from "../../shared/models/address.model";
 import {Country} from "../../shared/types-from-app";
 
+test.describe('Checkout page', () => {
+    /**
+     * Почему mode: 'serial'? Ответ в readme
+     */
+    test.describe.configure({ mode: 'serial', retries: 1 })
+
     const arrayForTest: {country: Country, isSelfPickup: boolean}[] = []
 
     const europeanUnionCountries = DEFAULT_COUNTRIES.filter((country) => {
@@ -22,14 +28,14 @@ import {Country} from "../../shared/types-from-app";
     arrayForTest.push({country: randomElement(notEuropeanUnionCountries), isSelfPickup: true})
     arrayForTest.push({country: randomElement(notEuropeanUnionCountries), isSelfPickup: false})
 
-    for (let testData of arrayForTest) {
+    arrayForTest.forEach((testData) => {
         logger.info(`testData in test ${JSON.stringify(testData)}`)
         test(`Check products data and tax in Cart and place order for isEuropeanUnionCountry = ${testData.country.europeanUnion} and isSelfPickup = ${testData.isSelfPickup} `, async({
-                                                                                                                               getUserEnvironment,
-                                                                                                                               browser,
-                                                                                                                               logoutUser,
-                                                                                                                               getAuthorizedUser
-                                                                                                                           }) => {
+                                                                                                                                                                                          getUserEnvironment,
+                                                                                                                                                                                          browser,
+                                                                                                                                                                                          logoutUser,
+                                                                                                                                                                                          getAuthorizedUser
+                                                                                                                                                                                      }) => {
             /** Arrange **/
             const [user] = await getAuthorizedUser;
             const [{userPage, userBrowserContext}] = await getUserEnvironment(browser, [user]);
@@ -79,7 +85,11 @@ import {Country} from "../../shared/types-from-app";
 
             await checkoutPage.paymentMethodBankTransfer.setChecked(true);
 
-            /** костыль - ждем когда обновится вся информация. Можно и без костыля, но об этом проще будет объяснить в разговоре при личной встрече **/
+            /** костыль - статическое ожидание - ждем когда обновится вся информация.
+             * Можно и без костыля и с элегантным решением.
+             * Но для того, чтобы выбрать лучшее из элегантных решений и его воплотить не хватает
+             * погруженности в контекст проекта.
+             * **/
             await sleep(5)
 
             await checkoutPage.checkProductInCart(productsForChecked)
@@ -90,4 +100,11 @@ import {Country} from "../../shared/types-from-app";
             /** logout **/
             await logoutUser(userBrowserContext, userPage);
         })
-    }
+    })
+
+})
+
+
+
+
+
