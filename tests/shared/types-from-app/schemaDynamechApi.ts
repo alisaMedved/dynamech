@@ -15,12 +15,14 @@ export interface Product {
   quantity: number
 }
 
+export type Country = {
+  name: string;
+  code: string;
+  europeanUnion: boolean;
+}
+
 export interface Address {
-  "country": {
-    "name": string
-    "code": string,
-    "europeanUnion": boolean,
-  },
+  "country": Country,
   "firstName": string,
   "lastName": string,
   "addressLine1": string,

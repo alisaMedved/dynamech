@@ -1,87 +1,92 @@
 import {test} from "../fixtures/customerFixture";
-import {WorkspacePage} from "../pages-and-components/pages/workspace.page";
+import {ProductWithBrandAndName, WorkspacePage} from "../pages-and-components/pages/workspace.page";
 import {Product} from "../../shared/controllers/product.controller";
-import {sleep} from "../../shared/utils/helpers";
+import {randomElement, sleep} from "../../shared/utils/helpers";
 import {logger} from "../../shared/logs.config";
-import {ProductForAdd} from "../pages-and-components/pages/productSearch.page";
 import {Address} from "../../shared/controllers/address.controller";
-import {expect} from "@playwright/test";
-import {CheckoutPage} from "../pages-and-components/pages/checkout.page";
-import {PageRoutes} from "../pageRoutes";
+import {newAddressIdSelectOption} from "../pages-and-components/pages/checkout.page";
+import {DEFAULT_COUNTRIES} from "../../shared/models/address.model";
+import {Country} from "../../shared/types-from-app";
 
 
 test.describe("check actions on Checkout page", () => {
 
-    test('Checkout workspace with products: check data of products and check europeanUnion Tax', async({
-                                                                                 getUserEnvironment,
-                                                                                 browser,
-                                                                                 logoutUser,
-                                                                                 getAuthorizedUser
-                                                                             }) => {
-        /** Arrange **/
-        const [user] = await getAuthorizedUser;
-        const [{userPage, userBrowserContext}] = await getUserEnvironment(browser, [user]);
-        const productsForAddition = Product.productsForAdditionToWorkspace(3)
-        const address = Address.getRandomAddress({})
-        logger.info(`productsForAddition ${JSON.stringify(productsForAddition)}`)
+    const arrayForTest: Country[] = []
 
-        /** Act - Assertion**/
-        const workspacePage = new WorkspacePage(userPage);
-        await workspacePage.goto({});
-        // await workspacePage.createNewWorkspace();
-        // const productSearchPage= await workspacePage.choseWayToAddProduct('product_search', userPage);
-        // const productsForChecked: ProductForAdd[] = []
-        // for await (let productForAddition of productsForAddition) {
-        //     await productSearchPage.searchProduct(productForAddition.productMpn)
-        //     await productSearchPage.checkSearchedProduct(true)
-        //     await productSearchPage.setQuantity(productForAddition.quantity)
-        //     const productPrices = await productSearchPage.choseRandomPrice()
-        //     logger.info(`productPrices ${JSON.stringify(productPrices)}`)
-        //     await productSearchPage.addProductBtn.click()
-        //     productsForChecked.unshift({...productPrices, ...productForAddition})
-        //     await workspacePage.checkRowsCount(productsForChecked.length)
-        // }
+    const europeanUnionCountry: Country = randomElement(DEFAULT_COUNTRIES.filter((country) => {
+        return country.europeanUnion
+    }))
 
-            // Слушаем создание новой страницы
-            const [newPage] = await Promise.all([
-                userBrowserContext.waitForEvent('page'), // Ждём появления новой страницы
-                await workspacePage.checkoutBtn.click() // Кликаем на кнопку
-            ]);
+    const notEuropeanUnionCountry: Country = randomElement(DEFAULT_COUNTRIES.filter((country) => {
+        return !country.europeanUnion
+    }))
 
-            // Ждём, пока новая страница загрузится
-            await newPage.waitForLoadState();
+    // arrayForTest.push(europeanUnionCountry)
+    arrayForTest.push(notEuropeanUnionCountry)
 
-            const checkoutPage = new CheckoutPage(newPage)
-        expect(newPage.url()).toContain(`${PageRoutes.baseClientURL}/${checkoutPage.route}`)
+    arrayForTest.forEach((country: Country) => {
+        test(`Check products data and tax in Cart for country with flag isEuropeanUnion = ${country.europeanUnion}`, async({
+                                                                                                                         getUserEnvironment,
+                                                                                                                         browser,
+                                                                                                                         logoutUser,
+                                                                                                                         getAuthorizedUser
+                                                                                                                     }) => {
+            /** Arrange **/
+            const [user] = await getAuthorizedUser;
+            const [{userPage, userBrowserContext}] = await getUserEnvironment(browser, [user]);
+            const productsForAddition = Product.productsForAdditionToWorkspace(3)
+            const address = Address.getRandomAddress({})
+            logger.info(`productsForAddition ${JSON.stringify(productsForAddition)}`)
 
-        await checkoutPage.setCheckboxValue(checkoutPage.billingAddressIsSame, true);
-        await checkoutPage.setCheckboxValue(checkoutPage.selfPickUpCheckbox, true);
+            /** Act - Assertion**/
+            const workspacePage = new WorkspacePage(userPage);
+            await workspacePage.goto({});
+            await workspacePage.createNewWorkspace();
+
+            const productSearchPage= await workspacePage.choseWayToAddProduct('product_search', userPage);
+            const productsForChecked: ProductWithBrandAndName[] = []
+
+            for await (let productForAddition of productsForAddition) {
+                await productSearchPage.searchProduct(productForAddition.productMpn)
+                await productSearchPage.checkSearchedProduct(true)
+                await productSearchPage.setQuantity(productForAddition.quantity)
+                const productPrices = await productSearchPage.choseRandomPrice()
+                logger.info(`productPrices ${JSON.stringify(productPrices)}`)
+                await productSearchPage.addProductBtn.click()
+                productsForChecked.unshift({...productPrices, ...productForAddition, brand: '', name: ''})
+                await workspacePage.checkRowsCount(productsForChecked.length)
+                const {brand, name} = await workspacePage.getNameAndBrandOfProduct(1)
+                productsForChecked[0].brand = brand
+                productsForChecked[0].name = name
+            }
+
+            const { checkoutPage, newUserPage} = await workspacePage.goToCheckoutAndAssertIt(userBrowserContext);
+
+            await checkoutPage.setCheckboxValue(checkoutPage.billingAddressIsSame, true);
+            await checkoutPage.setCheckboxValue(checkoutPage.selfPickUpCheckbox, true);
 
 
-        await checkoutPage.billingAddressIdSelect.click()
-        const addressIdOption = checkoutPage.billingAddressIdSelect.getByText(/New Address/)
-        await addressIdOption.click()
+            await checkoutPage.setSelectValue(checkoutPage.billingAddressIdSelect, newAddressIdSelectOption)
+            await checkoutPage.setSelectValue(checkoutPage.countrySelect, address.country.name)
 
-        await checkoutPage.countrySelect.click()
-        const countryOption = checkoutPage.countrySelect.getByText(address.country.name)
-        await countryOption.click()
+            await checkoutPage.companyName.fill(address.companyName)
+            await checkoutPage.firstName.fill(address.firstName)
+            await checkoutPage.lastName.fill(address.lastName)
+            await checkoutPage.addressLine.fill(address.addressLine1)
+            await checkoutPage.city.fill(address.city)
+            await checkoutPage.zip.fill(address.zip)
+            await checkoutPage.phone.fill(address.phone)
+            await checkoutPage.addressNickname.clear()
 
-        await checkoutPage.companyName.fill(address.companyName)
-        await checkoutPage.firstName.fill(address.firstName)
-        await checkoutPage.lastName.fill(address.lastName)
-        await checkoutPage.addressLine.fill(address.addressLine1)
-        await checkoutPage.city.fill(address.city)
-        await checkoutPage.zip.fill(address.zip)
-        await checkoutPage.phone.fill(address.phone)
-        await checkoutPage.addressNickname.clear()
+            await checkoutPage.paymentMethodBankTransfer.setChecked(true);
 
-        await checkoutPage.paymentMethodBankTransfer.setChecked(true);
+            await checkoutPage.checkProductInCart(productsForChecked)
+            await checkoutPage.checkSubtotalAndTaxInCart(productsForChecked, country.europeanUnion)
 
-        await checkoutPage.submitBtn.click();
+            await checkoutPage.placeOrderAndAsserIt(newUserPage);
 
-        await sleep(20)
-
-        /** logout **/
-        await logoutUser(userBrowserContext, userPage);
+            /** logout **/
+            await logoutUser(userBrowserContext, userPage);
+        })
     })
 })

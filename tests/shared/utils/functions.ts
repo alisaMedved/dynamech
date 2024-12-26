@@ -1,14 +1,25 @@
+import {logger} from "../logs.config";
+
 export function parseFloatPrice(stringPrice: string): number {
-    return Math.round(parseFloat(stringPrice.replace(' ', '').replace(',', '')) * 100)/100
+    logger.info(`parseFloatPrice stringPrice ${stringPrice}`)
+    const res = Math.round(parseFloat(stringPrice.replace(' ', '').replace(',', '')) * 100)/100
+    logger.info(`parseFloatPrice res ${res}`)
+    return res
 }
 
 export function parsePriceWithCurrencySymbol(input: string): string {
+    logger.info(`parsePriceWithCurrencySymbol input ${input}`)
     // Ищет число после '€'
     const priceMatch = input.match(/€[\d,.\s]+/);
-    return priceMatch ? priceMatch[0].replace('€', '').trim() : '';
+    const res = priceMatch ? priceMatch[0].replace('€', '').trim() : '';
+    logger.info(`parsePriceWithCurrencySymbol res ${res}`)
+    return res
 }
 
 export function parseTotalPrice(totalPrice: string) {
+    logger.info(`parseTotalPrice totalPrice ${totalPrice}`)
+    logger.info(`parseTotalPrice totalAmount ${parseFloatPrice(parsePriceWithCurrencySymbol(totalPrice))}`)
+    logger.info(`parseTotalPrice totalCurrency ${totalPrice.slice(0, 1)}`)
     return {
         totalPrice: totalPrice,
         totalAmount: parseFloatPrice(parsePriceWithCurrencySymbol(totalPrice)),
@@ -22,6 +33,9 @@ export function matchQuantityAndPrice(input: string): { quantity: number, price:
 
     const quantity = quantityMatch ? parseInt(quantityMatch[1], 10) : 0;
     const price = parsePriceWithCurrencySymbol(input)
+
+    logger.info(`matchQuantityAndPrice ${quantity}`)
+    logger.info(`matchQuantityAndPrice price ${parseFloatPrice(price)}`)
 
     return {
         quantity,

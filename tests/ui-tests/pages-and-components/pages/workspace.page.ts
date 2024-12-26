@@ -1,4 +1,4 @@
-import {type Page, type Locator, FrameLocator, expect} from "@playwright/test";
+import {type Page, type Locator, FrameLocator, expect, BrowserContext} from "@playwright/test";
 import { BasePage } from "../base.page";
 import { PageRoutes } from "../../pageRoutes";
 import {logger} from "../../../shared/logs.config";
@@ -12,7 +12,12 @@ export enum WAYS_OF_PRODUCT_ADDITION {
   paste_text
 }
 
-export type CellTypes = 'Quantity' | 'MPN' | 'Price' | 'Total'
+export interface ProductWithBrandAndName extends ProductForAdd {
+  brand: string;
+  name: string;
+}
+
+export type CellTypes = 'Quantity' | 'MPN' | 'Price' | 'Total' | 'Name' | 'Brand'
 
 export class WorkspacePage extends BasePage {
   page: Page;
@@ -98,6 +103,10 @@ export class WorkspacePage extends BasePage {
 
   getCellFromRow(typeCell: CellTypes, row: Locator) {
     switch(typeCell) {
+      case "Name":
+        return row.locator('div[style="--start: 4; --end: 5;"] > div').locator('div').nth(0)
+      case "Brand":
+        return row.locator('div[style="--start: 4; --end: 5;"] > div').locator('div').nth(1)
       case "MPN":
         return row.locator('div[class^="_cell_"][class*="_offsetMpn_"]')
       case 'Quantity':
@@ -105,6 +114,7 @@ export class WorkspacePage extends BasePage {
       case "Price":
         return row.locator('div[class^="_cell_"][class*="_price_"]')
       case "Total":
+      default:
         return row.locator('div[class^="_currentPrice_"] > div[class^="_cell_"]').last()
     }
   }
@@ -130,6 +140,18 @@ export class WorkspacePage extends BasePage {
     }
   }
 
+  async getNameAndBrandOfProduct(rowNumberOfProduct: number) {
+    const rowLocator = this.productRow.nth(rowNumberOfProduct)
+    const nameText = await this.getCellFromRow("Name", rowLocator).textContent()
+    const brandText = await this.getCellFromRow("Brand", rowLocator).textContent()
+    logger.info(`getNameAndBrandOfProduct name ${nameText.trim()}`)
+    logger.info(`getNameAndBrandOfProduct brand ${brandText.trim()}`)
+    return {
+      brand: brandText.trim(),
+      name: nameText.trim()
+    }
+  }
+
   async checkTotalAmounts(products: ProductForAdd[]) {
     const subTotal = products.reduce((acc, elm) => {
       acc.totalQuantity = Math.round((acc.totalQuantity + elm.quantity) * 100)/100
@@ -141,5 +163,23 @@ export class WorkspacePage extends BasePage {
     expect(parseInt(subtotalQuantityValue)).toEqual(subTotal.totalQuantity)
     const subtotalPriceValue = await this.subtotalPriceValue.innerText()
     expect(parseFloatPrice(parsePriceWithCurrencySymbol(subtotalPriceValue))).toEqual(subTotal.subtotalPrice)
+  }
+  
+  async goToCheckoutAndAssertIt(userBrowserContext: BrowserContext) {
+    
+    const [newUserPage] = await Promise.all([
+      userBrowserContext.waitForEvent('page'),
+      await this.checkoutBtn.click()
+    ]);
+    
+    await newUserPage.waitForLoadState();
+
+    const checkoutPage = new CheckoutPage(newUserPage)
+    await checkoutPage.loadedPage()
+    expect(newUserPage.url()).toContain(`${PageRoutes.baseClientURL}/${checkoutPage.route}`)
+    return {
+      checkoutPage,
+      newUserPage
+    };
   }
 }

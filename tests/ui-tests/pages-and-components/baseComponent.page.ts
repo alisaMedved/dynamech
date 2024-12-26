@@ -15,12 +15,19 @@ export abstract class BaseComponent {
     }
 
     async setCheckboxValue(checkboxLocator: Locator, value: boolean): Promise<void> {
-        const labelFor = await checkboxLocator.getAttribute('id')
         const checked = await checkboxLocator.isChecked();
         if (checked !== value) {
+            const labelFor = await checkboxLocator.getAttribute('id')
             const labelLocator = this.page.locator(`label[for="${labelFor}"]`)
             await labelLocator.click()
         }
+    }
+
+    async setSelectValue(selectLocator: Locator, labelOption: string): Promise<void> {
+        await selectLocator.click()
+        const reg = new RegExp(labelOption, "i");
+        const selectOptionLocator = selectLocator.getByText(reg)
+        await selectOptionLocator.click()
     }
 
     async loadedElementOfPage(element: Locator) {

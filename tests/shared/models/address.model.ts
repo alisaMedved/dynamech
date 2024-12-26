@@ -1,8 +1,10 @@
-import { Address } from "../types-from-app";
+import {Address, Country} from "../types-from-app";
 
 export interface AddressModel extends Address {}
 
-export const DEFAULT_COUNTRIES = [
+
+
+export const DEFAULT_COUNTRIES: Country[] = [
     {
         "name": "Georgia",
         "code": "GE",

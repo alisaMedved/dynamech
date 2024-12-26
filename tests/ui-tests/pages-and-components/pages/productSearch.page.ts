@@ -2,7 +2,7 @@ import {type Page, type Locator, expect} from "@playwright/test";
 import {logger} from "../../../shared/logs.config";
 import {BaseComponent} from "../baseComponent.page";
 
-export type ProductForAdd = {
+export interface ProductForAdd {
     price: string,
     total: string,
     productMpn: string,
