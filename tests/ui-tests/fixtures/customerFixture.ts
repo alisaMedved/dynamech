@@ -63,6 +63,7 @@ export const test = base.extend<Fixtures>({
         { timeout: 10 * 1000 },
     ],
 
+
     getAuthorizedUser: [
         async (
             {

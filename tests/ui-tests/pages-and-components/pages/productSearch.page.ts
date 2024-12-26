@@ -73,14 +73,6 @@ export class ProductSearchPage extends BaseComponent {
         }
     }
 
-    // await page.goto('https://aqatesttask.dynamech.io/business-v2/login');
-    // await page.getByPlaceholder('Email').click();
-    // await page.getByPlaceholder('Email').fill('jgreenfelder@turner.com');
-    // await page.getByLabel('Password').click();
-    // await page.getByLabel('Password').click();
-    // await page.getByLabel('Password').fill('customer');
-    // await page.getByRole('button', { name: 'Login' }).click();
-
     async loadedPage() {
         await super.loadedElementOfPage(this.searchInput);
         await super.loadedElementOfPage(this.searchBtn);

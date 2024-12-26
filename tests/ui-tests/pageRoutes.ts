@@ -3,6 +3,7 @@ import {logger} from "../shared/logs.config";
 
 export class PageRoutes {
   public static readonly baseClientURL: string = test_config.ui.baseUrlUI;
+  public static readonly auth: string = `${this.baseClientURL}/business-v2/`;
   public static workspace(workspaceId?: string): string {
     logger.info(`${this.baseClientURL}/business-v2/workspace${workspaceId ? `/${workspaceId}` : '' }`)
     logger.info(`${this.baseClientURL}`)
@@ -14,5 +15,4 @@ export class PageRoutes {
   public static confirmation(orderId: string): string {
     return `${this.baseClientURL}/checkout/confirmation?orderId=${orderId}`
   }
-
 }

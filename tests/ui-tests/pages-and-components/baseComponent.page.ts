@@ -1,5 +1,7 @@
-import { Locator, Page } from "@playwright/test";
+import {Cookie, Locator, Page} from "@playwright/test";
 import { test_config } from "../../shared/test.config";
+import {StorageState} from "../types";
+import {logger} from "../../shared/logs.config";
 
 export abstract class BaseComponent {
     page: Page;
@@ -8,6 +10,23 @@ export abstract class BaseComponent {
 
     protected constructor(page: Page) {
         this.page = page;
+    }
+
+    async logCookie(): Promise<{ storeFromPage: StorageState; cookiesFromPage: Array<Cookie> }> {
+        const storeFromPage: StorageState = await this.page.context().storageState();
+        const cookiesFromPage = await this.page.context().cookies();
+        logger.info(`${this.getClassName()} this.page.context().storageState() ${JSON.stringify(storeFromPage)}`);
+        logger.info(`${this.getClassName()} this.page.context().cookies() ${JSON.stringify(cookiesFromPage)}`);
+        return { storeFromPage, cookiesFromPage };
+    }
+
+    async isAuth(): Promise<boolean> {
+        const { storeFromPage } = await this.logCookie();
+        if (storeFromPage && storeFromPage?.cookies && Array.isArray(storeFromPage?.cookies)) {
+            return storeFromPage.cookies.some((cookie) => cookie.name === 'customer_token_hp') &&
+                storeFromPage.cookies.some((cookie) => cookie.name === 'customer_token_s')
+        }
+        return false;
     }
 
     async scroll({ x, y }: { x?: number; y?: number }) {

@@ -5,7 +5,6 @@ import {matchQuantityAndPrice, parseFloatPrice, parsePriceWithCurrencySymbol} fr
 import {ConfirmationPage} from "./confirmation.page";
 import {logger} from "../../../shared/logs.config";
 import {ProductWithBrandAndName} from "./workspace.page";
-import {sleep} from "../../../shared/utils/helpers";
 
 export const newAddressIdSelectOption = 'New Address';
 
@@ -155,8 +154,8 @@ export class CheckoutPage extends BasePage {
     async placeOrderAndAsserIt(userPage: Page, isSuccessPlacingOrder: boolean) {
 
         if (isSuccessPlacingOrder) {
-            await this.submitBtn.click();
             const confirmationPage = new ConfirmationPage(userPage)
+            await this.submitBtn.click();
             await confirmationPage.loadedPage()
             expect(userPage.url()).toContain(`${PageRoutes.baseClientURL}/${this.route}/${confirmationPage.route}`)
             return confirmationPage;
