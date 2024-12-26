@@ -9,8 +9,8 @@ export const DEFAULT_COUNTRIES = [
         "europeanUnion": false,
     },
     {
-        "name": "Russia",
-        "code": "RU",
+        "name": "Ukraine",
+        "code": "UK",
         "europeanUnion": false,
     },
     {
@@ -24,8 +24,8 @@ export const DEFAULT_COUNTRIES = [
         "europeanUnion": true,
     },
     {
-        "name": "Belarus",
-        "code": "BY",
+        "name": "Turkey",
+        "code": "TR",
         "europeanUnion": false,
     },
     {

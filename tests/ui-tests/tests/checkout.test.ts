@@ -54,16 +54,19 @@ test.describe("check actions on Checkout page", () => {
             const checkoutPage = new CheckoutPage(newPage)
         expect(newPage.url()).toContain(`${PageRoutes.baseClientURL}/${checkoutPage.route}`)
 
-        const selfPickUpLabel = await checkoutPage.getLabelForCheckbox(checkoutPage.selfPickUpCheckbox)
-        await selfPickUpLabel.click();
-        await checkoutPage.shippingAddressIdSelect.click();
-        await checkoutPage.newAddressSelectOption.click();
+        await checkoutPage.setCheckboxValue(checkoutPage.billingAddressIsSame, true);
+        await checkoutPage.setCheckboxValue(checkoutPage.selfPickUpCheckbox, true);
+
+
+        await checkoutPage.billingAddressIdSelect.click()
+        const addressIdOption = checkoutPage.billingAddressIdSelect.getByText(/New Address/)
+        await addressIdOption.click()
+
         await checkoutPage.countrySelect.click()
-        await checkoutPage.countrySelect.fill(address.country.name)
-        await checkoutPage.countrySelect.blur()
+        const countryOption = checkoutPage.countrySelect.getByText(address.country.name)
+        await countryOption.click()
 
         await checkoutPage.companyName.fill(address.companyName)
-        await checkoutPage.companyReg.fill(address.companyReg)
         await checkoutPage.firstName.fill(address.firstName)
         await checkoutPage.lastName.fill(address.lastName)
         await checkoutPage.addressLine.fill(address.addressLine1)
@@ -71,11 +74,12 @@ test.describe("check actions on Checkout page", () => {
         await checkoutPage.zip.fill(address.zip)
         await checkoutPage.phone.fill(address.phone)
         await checkoutPage.addressNickname.clear()
-        await checkoutPage.billingAddressIsSame.setChecked(true);
 
-        await sleep(10)
+        await checkoutPage.paymentMethodBankTransfer.setChecked(true);
 
-        await checkoutPage.paymentMethodBankTransfer.click()
+        await checkoutPage.submitBtn.click();
+
+        await sleep(20)
 
         /** logout **/
         await logoutUser(userBrowserContext, userPage);

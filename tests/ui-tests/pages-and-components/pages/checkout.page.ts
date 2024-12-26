@@ -8,21 +8,24 @@ export class CheckoutPage extends BasePage {
     page: Page;
     route: Exclude<keyof typeof PageRoutes, "prototype">;
     selfPickUpCheckbox: Locator;
-    shippingAddressIdSelect: Locator;
-    newAddressSelectOption: Locator;
+    billingAddressIsSame: Locator;
+
+    billingAddressIdSelect: Locator;
     countrySelect: Locator;
+
     firstName: Locator;
     lastName: Locator;
     companyName: Locator;
-    companyReg: Locator;
+
     addressLine: Locator;
     city: Locator;
     zip: Locator;
     phone: Locator;
     addressNickname: Locator;
-    billingAddressIsSame: Locator;
+
     paymentMethodBankTransfer: Locator;
     submitBtn: Locator;
+
     cartTotalSub: Locator;
     cartTax: Locator;
     cartTotalGrand: Locator;
@@ -32,31 +35,30 @@ export class CheckoutPage extends BasePage {
         super(page);
         this.page = page;
         this.route = "checkout";
-        this.selfPickUpCheckbox = this.page.getByTestId('checkbox')
-        this.shippingAddressIdSelect = this.page.locator('div[data-qa-ref="shipping-address-id"]>div')
-        this.newAddressSelectOption = this.shippingAddressIdSelect.getByText('+ New Address...')
-        this.countrySelect = this.page.getByTestId('checkout[shipping-address][address-country]')
-        this.firstName = this.page.locator('input[name="checkout[shipping-address][first-name]"]')
-        this.lastName = this.page.locator('input[name="checkout[shipping-address][last-name]"]')
-        this.companyName = this.page.locator('input[name="checkout[shipping-address][company]"]')
-        this.companyReg = this.page.locator('input[name="checkout[shipping-address][reg]"]')
-        this.addressLine = this.page.locator('input[name="checkout[shipping-address][address-line1]"]')
-        this.city = this.page.locator('input[name="checkout[shipping-address][city]"]')
-        this.zip = this.page.locator('input[name="checkout[shipping-address][zip]"]')
-        this.phone = this.page.locator('input[name="checkout[shipping-address][phone]"]')
-        this.addressNickname = this.page.locator('input[name="checkout[shipping-address][nickname]"]')
         this.billingAddressIsSame = this.page.getByTestId('billing-address-same-as-shipping')
+        this.selfPickUpCheckbox = this.page.getByTestId('checkbox')
+
+        this.billingAddressIdSelect = this.page.getByTestId('billing-address-id')
+        this.countrySelect = this.page.getByTestId('checkout[shipping-address][address-country]')
+
+
+        this.firstName = this.page.locator('input[name="checkout[billing-address][first-name]"]')
+        this.lastName = this.page.locator('input[name="checkout[billing-address][last-name]"]')
+        this.companyName = this.page.locator('input[name="checkout[billing-address][company]"]')
+
+        this.addressLine = this.page.locator('input[name="checkout[billing-address][address-line1]"]')
+        this.city = this.page.locator('input[name="checkout[billing-address][city]"]')
+        this.zip = this.page.locator('input[name="checkout[billing-address][zip]"]')
+        this.phone = this.page.locator('input[name="checkout[billing-address][phone]"]')
+        this.addressNickname = this.page.locator('input[name="checkout[billing-address][nickname]"]')
+
         this.paymentMethodBankTransfer = this.page.locator('input[name="checkout[payment-method][payment-bank]"]')
-        this.submitBtn = this.page.getByTestId('invoice-checkout-submit')
+
+        this.submitBtn = this.page.getByTestId('invoice-checkout-submit').nth(1)
         this.cartTotalSub = this.page.getByTestId('cart-total-sub')
         this.cartTax = this.page.getByTestId('cart-total-tax')
         this.cartTotalGrand = this.page.getByTestId('cart-total-grand')
         this.productPricesAndQuantity = this.page.locator('div[class*="component_cart-product-list-item__cell_price__"]')
-    }
-
-    async getLabelForCheckbox(checkboxLocator: Locator): Promise<Locator> {
-        const labelFor = await checkboxLocator.getAttribute('id')
-        return this.page.locator(`label[for="${labelFor}"]`)
     }
 
     async goto(options: {workspaceId: string}) {
@@ -64,14 +66,7 @@ export class CheckoutPage extends BasePage {
         await super.goToPageURL(PageRoutes[this.route](options.workspaceId));
 
     }
-    async checkURL() {
-        // await this.page.waitForURL(
-        //     (url) => {
-        //         return url.href.includes('checkout/confirmation');
-        //     },
-        //     { waitUntil: "commit" },
-        // );
-    }
+
     async loadedPage() {
         // await super.loadedElementOfPage(this.submitBtn);
     }

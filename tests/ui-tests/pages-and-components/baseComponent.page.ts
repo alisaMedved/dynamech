@@ -14,6 +14,15 @@ export abstract class BaseComponent {
         await this.page.mouse.wheel(x ?? 0, y ?? 0);
     }
 
+    async setCheckboxValue(checkboxLocator: Locator, value: boolean): Promise<void> {
+        const labelFor = await checkboxLocator.getAttribute('id')
+        const checked = await checkboxLocator.isChecked();
+        if (checked !== value) {
+            const labelLocator = this.page.locator(`label[for="${labelFor}"]`)
+            await labelLocator.click()
+        }
+    }
+
     async loadedElementOfPage(element: Locator) {
         await element.waitFor({
             state: "visible",
