@@ -5,6 +5,7 @@ import {matchQuantityAndPrice, parseFloatPrice, parsePriceWithCurrencySymbol} fr
 import {ConfirmationPage} from "./confirmation.page";
 import {logger} from "../../../shared/logs.config";
 import {ProductWithBrandAndName} from "./workspace.page";
+import {sleep} from "../../../shared/utils/helpers";
 
 export const newAddressIdSelectOption = 'New Address';
 
@@ -30,6 +31,8 @@ export class CheckoutPage extends BasePage {
     paymentMethodBankTransfer: Locator;
     submitBtn: Locator;
 
+    shippingError: Locator;
+
     cartTotalSub: Locator;
     cartTax: Locator;
     cartTotalGrand: Locator;
@@ -45,22 +48,24 @@ export class CheckoutPage extends BasePage {
         this.billingAddressIsSame = this.page.getByTestId('billing-address-same-as-shipping')
         this.selfPickUpCheckbox = this.page.getByTestId('checkbox')
 
-        this.billingAddressIdSelect = this.page.getByTestId('billing-address-id')
+        this.billingAddressIdSelect = this.page.getByTestId('billing-address-id').or(this.page.getByTestId('shipping-address-id'))
         this.countrySelect = this.page.getByTestId('checkout[shipping-address][address-country]')
 
-        this.firstName = this.page.locator('input[name="checkout[billing-address][first-name]"]')
-        this.lastName = this.page.locator('input[name="checkout[billing-address][last-name]"]')
-        this.companyName = this.page.locator('input[name="checkout[billing-address][company]"]')
+        this.firstName = this.page.locator('input[name="checkout[billing-address][first-name]"]').or(this.page.locator('input[name="checkout[shipping-address][first-name]"]'))
+        this.lastName = this.page.locator('input[name="checkout[billing-address][last-name]"]').or(this.page.locator('input[name="checkout[shipping-address][last-name]"]'))
+        this.companyName = this.page.locator('input[name="checkout[billing-address][company]"]').or(this.page.locator('input[name="checkout[shipping-address][company]"]'))
 
-        this.addressLine = this.page.locator('input[name="checkout[billing-address][address-line1]"]')
-        this.city = this.page.locator('input[name="checkout[billing-address][city]"]')
-        this.zip = this.page.locator('input[name="checkout[billing-address][zip]"]')
-        this.phone = this.page.locator('input[name="checkout[billing-address][phone]"]')
-        this.addressNickname = this.page.locator('input[name="checkout[billing-address][nickname]"]')
+        this.addressLine = this.page.locator('input[name="checkout[billing-address][address-line1]"]').or(this.page.locator('input[name="checkout[shipping-address][address-line1]"]'))
+        this.city = this.page.locator('input[name="checkout[billing-address][city]"]').or(this.page.locator('input[name="checkout[shipping-address][city]"]'))
+        this.zip = this.page.locator('input[name="checkout[billing-address][zip]"]').or(this.page.locator('input[name="checkout[shipping-address][zip]"]'))
+        this.phone = this.page.locator('input[name="checkout[billing-address][phone]"]').or(this.page.locator('input[name="checkout[shipping-address][phone]"]'))
+        this.addressNickname = this.page.locator('input[name="checkout[billing-address][nickname]"]').or(this.page.locator('input[name="checkout[shipping-address][nickname]"]'))
 
         this.paymentMethodBankTransfer = this.page.locator('input[name="checkout[payment-method][payment-bank]"]')
 
         this.submitBtn = this.page.getByTestId('invoice-checkout-submit').nth(1)
+
+        this.shippingError = this.page.getByTestId('shipping-methods')
 
         this.cartTotalSub = this.page.getByTestId('cart-total-sub')
         this.cartTax = this.page.getByTestId('cart-total-tax')
@@ -110,7 +115,7 @@ export class CheckoutPage extends BasePage {
         }
     }
 
-    async checkSubtotalAndTaxInCart(products: ProductWithBrandAndName[], isEuropeanUnion: boolean) {
+    async checkSubtotalAndTaxInCart(products: ProductWithBrandAndName[], isEuropeanUnion: boolean, isSelfPickup: boolean) {
          const formattedWorkspaceSubtotal = products.reduce((acc, product) => {
             acc = acc + parseFloatPrice(parsePriceWithCurrencySymbol(product.total));
             acc = Math.round(acc * 100)/100
@@ -123,27 +128,45 @@ export class CheckoutPage extends BasePage {
         expect(cartSubtotal).toEqual(formattedWorkspaceSubtotal)
 
         const tax = await this.cartTax.textContent()
+        logger.info(`tax checkout page assert ${tax}`)
         const formattedTax = parseFloatPrice(parsePriceWithCurrencySymbol(tax))
+        logger.info(`tax checkout page assert formattedTax ${formattedTax}`)
         const grandTotal = await this.cartTotalGrand.textContent()
         const formattedGrandTotal = parseFloatPrice(parsePriceWithCurrencySymbol(grandTotal))
 
-        if (isEuropeanUnion) {
-            expect(formattedTax).not.toEqual(0)
+        if (!isSelfPickup && isEuropeanUnion) {
+
+            await expect(async () => {
+                expect(formattedTax).not.toBe(0)
+            }).toPass({ intervals: [5000, 5000, 5000, 5000],
+                timeout: 30000});
+
             expect(formattedGrandTotal).toEqual(formattedWorkspaceSubtotal + formattedTax)
             expect(formattedGrandTotal).toEqual(cartSubtotal + formattedTax)
+
         } else {
+
             expect(formattedTax).toEqual(0)
             expect(formattedGrandTotal).toEqual(formattedWorkspaceSubtotal)
             expect(formattedGrandTotal).toEqual(cartSubtotal)
         }
     }
 
-    async placeOrderAndAsserIt(userPage: Page) {
-        await this.submitBtn.click();
-        const confirmationPage = new ConfirmationPage(userPage)
-        await confirmationPage.loadedPage()
-        expect(userPage.url()).toContain(`${PageRoutes.baseClientURL}/${this.route}/${confirmationPage.route}`)
-        return confirmationPage;
+    async placeOrderAndAsserIt(userPage: Page, isSuccessPlacingOrder: boolean) {
+
+        if (isSuccessPlacingOrder) {
+            await this.submitBtn.click();
+            const confirmationPage = new ConfirmationPage(userPage)
+            await confirmationPage.loadedPage()
+            expect(userPage.url()).toContain(`${PageRoutes.baseClientURL}/${this.route}/${confirmationPage.route}`)
+            return confirmationPage;
+        } else {
+            const elementBoundingBox = await this.shippingError.boundingBox();
+            await this.submitBtn.click();
+            await expect(this.shippingError).toBeVisible()
+            expect(elementBoundingBox).not.toBeNull();
+        }
+
     }
 
 }

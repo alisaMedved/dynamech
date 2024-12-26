@@ -8,34 +8,33 @@ import {newAddressIdSelectOption} from "../pages-and-components/pages/checkout.p
 import {DEFAULT_COUNTRIES} from "../../shared/models/address.model";
 import {Country} from "../../shared/types-from-app";
 
+    const arrayForTest: {country: Country, isSelfPickup: boolean}[] = []
 
-test.describe("check actions on Checkout page", () => {
-
-    const arrayForTest: Country[] = []
-
-    const europeanUnionCountry: Country = randomElement(DEFAULT_COUNTRIES.filter((country) => {
+    const europeanUnionCountries = DEFAULT_COUNTRIES.filter((country) => {
         return country.europeanUnion
-    }))
-
-    const notEuropeanUnionCountry: Country = randomElement(DEFAULT_COUNTRIES.filter((country) => {
+    })
+    const notEuropeanUnionCountries = DEFAULT_COUNTRIES.filter((country) => {
         return !country.europeanUnion
-    }))
+    })
 
-    // arrayForTest.push(europeanUnionCountry)
-    arrayForTest.push(notEuropeanUnionCountry)
+    arrayForTest.push({country: randomElement(europeanUnionCountries), isSelfPickup: true})
+    arrayForTest.push({country: randomElement(europeanUnionCountries), isSelfPickup: false})
+    arrayForTest.push({country: randomElement(notEuropeanUnionCountries), isSelfPickup: true})
+    arrayForTest.push({country: randomElement(notEuropeanUnionCountries), isSelfPickup: false})
 
-    arrayForTest.forEach((country: Country) => {
-        test(`Check products data and tax in Cart for country with flag isEuropeanUnion = ${country.europeanUnion}`, async({
-                                                                                                                         getUserEnvironment,
-                                                                                                                         browser,
-                                                                                                                         logoutUser,
-                                                                                                                         getAuthorizedUser
-                                                                                                                     }) => {
+    for (let testData of arrayForTest) {
+        logger.info(`testData in test ${JSON.stringify(testData)}`)
+        test(`Check products data and tax in Cart and place order for isEuropeanUnionCountry = ${testData.country.europeanUnion} and isSelfPickup = ${testData.isSelfPickup} `, async({
+                                                                                                                               getUserEnvironment,
+                                                                                                                               browser,
+                                                                                                                               logoutUser,
+                                                                                                                               getAuthorizedUser
+                                                                                                                           }) => {
             /** Arrange **/
             const [user] = await getAuthorizedUser;
             const [{userPage, userBrowserContext}] = await getUserEnvironment(browser, [user]);
             const productsForAddition = Product.productsForAdditionToWorkspace(3)
-            const address = Address.getRandomAddress({})
+            const address = Address.getRandomAddress({country: testData.country})
             logger.info(`productsForAddition ${JSON.stringify(productsForAddition)}`)
 
             /** Act - Assertion**/
@@ -63,7 +62,7 @@ test.describe("check actions on Checkout page", () => {
             const { checkoutPage, newUserPage} = await workspacePage.goToCheckoutAndAssertIt(userBrowserContext);
 
             await checkoutPage.setCheckboxValue(checkoutPage.billingAddressIsSame, true);
-            await checkoutPage.setCheckboxValue(checkoutPage.selfPickUpCheckbox, true);
+            await checkoutPage.setCheckboxValue(checkoutPage.selfPickUpCheckbox, testData.isSelfPickup);
 
 
             await checkoutPage.setSelectValue(checkoutPage.billingAddressIdSelect, newAddressIdSelectOption)
@@ -80,13 +79,15 @@ test.describe("check actions on Checkout page", () => {
 
             await checkoutPage.paymentMethodBankTransfer.setChecked(true);
 
-            await checkoutPage.checkProductInCart(productsForChecked)
-            await checkoutPage.checkSubtotalAndTaxInCart(productsForChecked, country.europeanUnion)
+            /** костыль - ждем когда обновится вся информация. Можно и без костыля, но об этом проще будет объяснить в разговоре при личной встрече **/
+            await sleep(5)
 
-            await checkoutPage.placeOrderAndAsserIt(newUserPage);
+            await checkoutPage.checkProductInCart(productsForChecked)
+            await checkoutPage.checkSubtotalAndTaxInCart(productsForChecked, address.country.europeanUnion, testData.isSelfPickup)
+
+            await checkoutPage.placeOrderAndAsserIt(newUserPage, testData.isSelfPickup);
 
             /** logout **/
             await logoutUser(userBrowserContext, userPage);
         })
-    })
-})
+    }

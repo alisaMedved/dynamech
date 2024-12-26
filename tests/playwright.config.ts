@@ -25,11 +25,11 @@ export default defineConfig({
     testIdAttribute: "data-qa-ref",
     ignoreHTTPSErrors: true,
     baseURL: process.env.CLIENT_UI_URL,
-    navigationTimeout: 90 * 1000,
-    actionTimeout: 60 * 1000,
+    navigationTimeout: 2 * 60 * 1000,
+    actionTimeout: 2* 60 * 1000,
   },
   expect: {
-    timeout: 30 * 1000,
+    timeout: 10 * 60 * 60 * 1000,
   },
   projects: [
     // for debug

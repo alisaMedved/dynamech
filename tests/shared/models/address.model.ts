@@ -6,8 +6,8 @@ export interface AddressModel extends Address {}
 
 export const DEFAULT_COUNTRIES: Country[] = [
     {
-        "name": "Georgia",
-        "code": "GE",
+        "name": "Japan",
+        "code": "JP",
         "europeanUnion": false,
     },
     {
