@@ -29,7 +29,7 @@ export class Product {
             )
             .quantity(
                 parameters.quantity ??
-                faker.number.int({min: 8, max: 12}),
+                faker.number.int({min: 2, max: 5}),
             )
             .build();
     }
