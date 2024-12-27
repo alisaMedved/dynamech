@@ -5,6 +5,7 @@ import {expect} from "@playwright/test";
 import {HeaderPage} from "../pages-and-components/components/header.page";
 import {LOCALSTORAGE_FIELDS_FOR_AVOID__BANNER} from "../../shared/models/customer.model";
 import {test_config} from "../../shared/test.config";
+import {BaseApi} from "../../shared/api/base.api";
 
 
 test.describe("Auth tests", () => {
@@ -48,6 +49,8 @@ test.describe("Auth tests", () => {
 
         /** logout **/
         await headerPage.logout()
+        await userBrowserContext.close();
+        BaseApi.uiTestContext = null;
     });
 
 })

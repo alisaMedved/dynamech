@@ -103,7 +103,7 @@
 ## Видео с proofs
 
 Видео с proofs что все запускается, запускается как надо, тесты проходят и allure отчет формируется и открывается -
-вот [здесь](https://drive.google.com/file/d/1ZT_gn0crx4YsdkxE2gUJB1kP1ixgKgdq/view?usp=sharing)
+вот [здесь](https://disk.yandex.ru/i/9fPOUL58iNA-yg)
 
 Настройка `headless` в файле `tests/playwright.config.ts` на видео для наглядности была поставлена в false,
 чтобы не бесить ревьюера кучей открытых окошек браузера
