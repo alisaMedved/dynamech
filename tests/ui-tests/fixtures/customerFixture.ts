@@ -52,7 +52,6 @@ export const test = base.extend<Fixtures>({
 
     getUnregisteredUser: [
         async ({ unregisteredUserAmount }, use) => {
-            logger.info(`fixture: getUnregisteredUser`);
             let users: any[] = [];
             for (let i = 0; i < unregisteredUserAmount; i++) {
                 let user = Customer.getRandomCustomer({});
@@ -72,7 +71,6 @@ export const test = base.extend<Fixtures>({
             },
             use,
         ) => {
-            logger.info('clientFixture, start getNewUserRegisteredWithMutationRegisterUser');
             let users: UserData[] = new Array(authorizedUserAmount).fill({})
             for await (let user of users) {
                 const context = await request.newContext({ storageState: undefined });

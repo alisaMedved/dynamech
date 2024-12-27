@@ -55,7 +55,6 @@ test.describe("check actions with workspaces", () => {
             await productSearchPage.checkSearchedProduct(true)
             await productSearchPage.setQuantity(productForAddition.quantity)
             const productPrices = await productSearchPage.choseRandomPrice()
-            logger.info(`productPrices ${JSON.stringify(productPrices)}`)
             await productSearchPage.addProductBtn.click()
             productsForChecked.unshift({...productPrices, ...productForAddition})
             await workspacePage.checkRowsCount(productsForChecked.length)

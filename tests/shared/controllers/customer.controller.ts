@@ -10,7 +10,6 @@ export class Customer {
   public static getRandomCustomer(
     parameters: Partial<CustomerModel>,
   ): CustomerModel {
-    logger.info(`CustomerController.getRandomCustomer start`);
     return Builder<CustomerModel>()
       .email(
         parameters.email ??
@@ -22,7 +21,6 @@ export class Customer {
   }
 
     public static getRegisteredCustomer(): CustomerModel {
-        logger.info(`CustomerController.getRegisteredCustomer start`);
         return Builder<CustomerModel>()
             .email(DEFAULT_REGISTERED_USER.email)
             .password(DEFAULT_REGISTERED_USER.password)

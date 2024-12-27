@@ -43,7 +43,6 @@ test.describe('Checkout page', () => {
             const [{userPage, userBrowserContext}] = await getUserEnvironment(browser, [user]);
             const productsForAddition = Product.productsForAdditionToWorkspace(3)
             const address = Address.getRandomAddress({country: testData.country})
-            logger.info(`productsForAddition ${JSON.stringify(productsForAddition)}`)
 
             /** Act - Assertion**/
             const workspacePage = new WorkspacePage(userPage);
@@ -58,7 +57,6 @@ test.describe('Checkout page', () => {
                 await productSearchPage.checkSearchedProduct(true)
                 await productSearchPage.setQuantity(productForAddition.quantity)
                 const productPrices = await productSearchPage.choseRandomPrice()
-                logger.info(`productPrices ${JSON.stringify(productPrices)}`)
                 await productSearchPage.addProductBtn.click()
                 productsForChecked.unshift({...productPrices, ...productForAddition, brand: '', name: ''})
                 await workspacePage.checkRowsCount(productsForChecked.length)

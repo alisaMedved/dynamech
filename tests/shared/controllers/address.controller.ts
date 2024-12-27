@@ -9,7 +9,6 @@ export class Address {
     public static getRandomAddress(
         parameters: Partial<AddressModel>,
     ): AddressModel {
-        logger.info(`CustomerController.getRandomCustomer start`);
         return Builder<AddressModel>()
             .country(parameters.country ??
                 randomElement(DEFAULT_COUNTRIES)

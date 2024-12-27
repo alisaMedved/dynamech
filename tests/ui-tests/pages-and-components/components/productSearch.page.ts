@@ -34,7 +34,6 @@ export class ProductSearchPage extends BaseComponent {
     }
 
     async searchProduct(productNumber: string) {
-        logger.info(`productNumber ${productNumber}`)
         if (!productNumber) {
             return false;
         }

@@ -21,7 +21,6 @@ export class Product {
     public static getRandomProductForAddition(
         parameters: Partial<ProductModel>,
     ): ProductModel {
-        logger.info(`ProductModelController.getRandomProductForAddition start`);
         return Builder<ProductModel>()
             .productMpn(
                 parameters.productMpn ??

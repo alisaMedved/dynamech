@@ -60,9 +60,7 @@ export function randomElements<T>(list: T[], amountOfItems: number = list.length
     result.push(elm);
     enabledOptions.splice(randomIndex, 1);
   }
-  logger.info(`enabledOptions ${enabledOptions}`)
-  logger.info(`result ${result}`)
-  logger.info(`list ${list}`)
+
   return result;
 }
 
@@ -94,7 +92,6 @@ export async function readDataFromFile(
         return dataFromFile;
       })
       .catch(() => {
-        logger.info('File does not exist');
         throw new Error('File does not exist');
       });
 }

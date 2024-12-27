@@ -64,8 +64,6 @@ export class WorkspacePage extends BasePage {
       await super.goToPageURL(PageRoutes[this.route](options.workspaceId));
     } else {
       // @ts-ignore
-      logger.info(`PageRoutes[this.route]() ${PageRoutes[this.route]()}`)
-      // @ts-ignore
       await super.goToPageURL(PageRoutes[this.route]());
     }
 
@@ -149,8 +147,6 @@ export class WorkspacePage extends BasePage {
     const rowLocator = this.productRow.nth(rowNumberOfProduct)
     const nameText = await this.getCellFromRow("Name", rowLocator).textContent()
     const brandText = await this.getCellFromRow("Brand", rowLocator).textContent()
-    logger.info(`getNameAndBrandOfProduct name ${nameText.trim()}`)
-    logger.info(`getNameAndBrandOfProduct brand ${brandText.trim()}`)
     return {
       brand: brandText.trim(),
       name: nameText.trim()

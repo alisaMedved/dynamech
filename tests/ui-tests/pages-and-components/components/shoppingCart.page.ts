@@ -41,7 +41,6 @@ export class ShoppingCartPage extends BaseComponent {
             expect(textFromBrandLocator.trim().toLowerCase()).toEqual(productOfRow.brand.trim().toLowerCase())
 
             const totalPrice = await this.productPricesAndQuantity.nth(j).locator('div').nth(0).textContent()
-            logger.info(`checkProductPricesInCart totalPrice ${totalPrice}`)
             expect(parseFloatPrice(parsePriceWithCurrencySymbol(totalPrice))).toEqual(parseFloatPrice(parsePriceWithCurrencySymbol(productOfRow.total)))
 
             const quantityAndPrice = await this.productPricesAndQuantity.nth(j).locator('div').nth(1).textContent()

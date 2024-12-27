@@ -1,17 +1,11 @@
 import {logger} from "../logs.config";
 
 export function parseFloatPrice(stringPrice: string): number {
-    logger.info(`parseFloatPrice stringPrice ${stringPrice}`)
-    const res = Math.round(parseFloat(stringPrice.replace(' ', '').replace(',', '')) * 100)/100
-    logger.info(`parseFloatPrice res ${res}`)
-    return res
+    return Math.round(parseFloat(stringPrice.replace(' ', '').replace(',', '')) * 100)/100
 }
 
 export function roundFloatPrice(initPrice: number): number {
-    logger.info(`roundFloatPrice stringPrice ${initPrice}`)
-    const res = Math.round(initPrice * 100)/100
-    logger.info(`roundFloatPrice res ${res}`)
-    return res
+    return Math.round(initPrice * 100)/100
 }
 
 export function parsePriceWithCurrencySymbol(input: string): string {
@@ -24,9 +18,6 @@ export function parsePriceWithCurrencySymbol(input: string): string {
 }
 
 export function parseTotalPrice(totalPrice: string) {
-    logger.info(`parseTotalPrice totalPrice ${totalPrice}`)
-    logger.info(`parseTotalPrice totalAmount ${parseFloatPrice(parsePriceWithCurrencySymbol(totalPrice))}`)
-    logger.info(`parseTotalPrice totalCurrency ${totalPrice.slice(0, 1)}`)
     return {
         totalPrice: totalPrice,
         totalAmount: parseFloatPrice(parsePriceWithCurrencySymbol(totalPrice)),
@@ -40,9 +31,6 @@ export function matchQuantityAndPrice(input: string): { quantity: number, price:
 
     const quantity = quantityMatch ? parseInt(quantityMatch[1], 10) : 0;
     const price = parsePriceWithCurrencySymbol(input)
-
-    logger.info(`matchQuantityAndPrice ${quantity}`)
-    logger.info(`matchQuantityAndPrice price ${parseFloatPrice(price)}`)
 
     return {
         quantity,

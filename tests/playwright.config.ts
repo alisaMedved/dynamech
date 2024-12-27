@@ -41,7 +41,7 @@ export default defineConfig({
       name: "Desktop Chrome",
       use: {
         ...devices["Desktop Chrome"],
-        headless: false,
+        headless: true,
         viewport: { width: 1920, height: 1020 },
         channel: "chrome",
         launchOptions: {

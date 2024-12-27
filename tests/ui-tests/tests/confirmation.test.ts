@@ -29,7 +29,6 @@ test.describe('Confirmation page', () => {
     arrayForTest.push({country: randomElement(notEuropeanUnionCountries), isSelfPickup: true})
 
     arrayForTest.forEach((testData) => {
-        logger.info(`testData in test ${JSON.stringify(testData)}`)
         test(`Check products data and prices in ConfirmationPage for isEuropeanUnionCountry = ${testData.country.europeanUnion} and isSelfPickup = true`, async({
                                                                                                                                                                                           getUserEnvironment,
                                                                                                                                                                                           browser,

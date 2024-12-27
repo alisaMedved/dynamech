@@ -1,12 +1,9 @@
 import { test_config } from "../shared/test.config";
-import {logger} from "../shared/logs.config";
 
 export class PageRoutes {
   public static readonly baseClientURL: string = test_config.ui.baseUrlUI;
   public static readonly auth: string = `${this.baseClientURL}/business-v2/`;
   public static workspace(workspaceId?: string): string {
-    logger.info(`${this.baseClientURL}/business-v2/workspace${workspaceId ? `/${workspaceId}` : '' }`)
-    logger.info(`${this.baseClientURL}`)
     return `${this.baseClientURL}/business-v2/workspace${workspaceId ? `/${workspaceId}` : '' }`
   };
   public static checkout(workspaceId: string, source='b2b'): string {
