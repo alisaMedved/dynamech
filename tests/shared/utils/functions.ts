@@ -7,6 +7,13 @@ export function parseFloatPrice(stringPrice: string): number {
     return res
 }
 
+export function roundFloatPrice(initPrice: number): number {
+    logger.info(`roundFloatPrice stringPrice ${initPrice}`)
+    const res = Math.round(initPrice * 100)/100
+    logger.info(`roundFloatPrice res ${res}`)
+    return res
+}
+
 export function parsePriceWithCurrencySymbol(input: string): string {
     logger.info(`parsePriceWithCurrencySymbol input ${input}`)
     // Ищет число после '€'

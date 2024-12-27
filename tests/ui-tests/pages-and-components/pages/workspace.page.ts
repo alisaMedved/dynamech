@@ -3,7 +3,12 @@ import { BasePage } from "../base.page";
 import { PageRoutes } from "../../pageRoutes";
 import {logger} from "../../../shared/logs.config";
 import {ProductForAdd, ProductSearchPage} from "../components/productSearch.page";
-import {parseFloatPrice, parsePriceWithCurrencySymbol, parseTotalPrice} from "../../../shared/utils/functions";
+import {
+  parseFloatPrice,
+  parsePriceWithCurrencySymbol,
+  parseTotalPrice,
+  roundFloatPrice
+} from "../../../shared/utils/functions";
 import {CheckoutPage} from "./checkout.page";
 
 export enum WAYS_OF_PRODUCT_ADDITION {
@@ -154,8 +159,8 @@ export class WorkspacePage extends BasePage {
 
   async checkTotalAmounts(products: ProductForAdd[]) {
     const subTotal = products.reduce((acc, elm) => {
-      acc.totalQuantity = Math.round((acc.totalQuantity + elm.quantity) * 100)/100
-      acc.subtotalPrice = Math.round((acc.subtotalPrice + parseTotalPrice(elm.total).totalAmount) * 100) / 100
+      acc.totalQuantity = roundFloatPrice(acc.totalQuantity + elm.quantity)
+      acc.subtotalPrice = roundFloatPrice(acc.subtotalPrice + parseTotalPrice(elm.total).totalAmount)
       return acc
     }, {totalQuantity: 0, subtotalPrice: 0})
     await expect(this.blockOfSubtotals).toBeVisible();

@@ -1,10 +1,7 @@
 import {type Page, type Locator, expect} from "@playwright/test";
 import { BasePage } from "../base.page";
 import { PageRoutes } from "../../pageRoutes";
-import {matchQuantityAndPrice, parseFloatPrice, parsePriceWithCurrencySymbol} from "../../../shared/utils/functions";
 import {ConfirmationPage} from "./confirmation.page";
-import {logger} from "../../../shared/logs.config";
-import {ProductWithBrandAndName} from "./workspace.page";
 
 export const newAddressIdSelectOption = 'New Address';
 
@@ -32,14 +29,6 @@ export class CheckoutPage extends BasePage {
 
     shippingError: Locator;
 
-    cartTotalSub: Locator;
-    cartTax: Locator;
-    cartTotalGrand: Locator;
-
-    shoppingCartTable: Locator;
-    productNameAndBrand: Locator;
-    productPricesAndQuantity: Locator;
-
     constructor(page: Page) {
         super(page);
         this.page = page;
@@ -65,14 +54,6 @@ export class CheckoutPage extends BasePage {
         this.submitBtn = this.page.getByTestId('invoice-checkout-submit').nth(1)
 
         this.shippingError = this.page.getByTestId('shipping-methods')
-
-        this.cartTotalSub = this.page.getByTestId('cart-total-sub')
-        this.cartTax = this.page.getByTestId('cart-total-tax')
-        this.cartTotalGrand = this.page.getByTestId('cart-total-grand')
-
-        this.shoppingCartTable = this.page.locator('div[class^="component_fix-box__"]').filter({hasText: 'Shopping cart'})
-        this.productNameAndBrand= this.shoppingCartTable.locator('div[class*="component_cart-product-list-item__cell_name__"]')
-        this.productPricesAndQuantity = this.shoppingCartTable.locator('div[class*="component_cart-product-list-item__cell_price__"]')
     }
 
     async goto(options: {workspaceId: string}) {
@@ -83,72 +64,6 @@ export class CheckoutPage extends BasePage {
 
     async loadedPage() {
         await super.loadedElementOfPage(this.submitBtn);
-    }
-    async checkProductInCart(products: ProductWithBrandAndName[]) {
-        logger.info(`checkProductPricesInCart, products ${JSON.stringify(products)}`)
-
-        let j = 0
-
-        for (const productNameAndBrandCell of await this.productNameAndBrand.all()) {
-            const mpnAndName = await productNameAndBrandCell.locator('div').textContent()
-
-            const index = products.findIndex((elm) => {
-                const reg = new RegExp(elm.name, "ig")
-                return mpnAndName.search(reg) !== -1
-            })
-            const productOfRow = products[index]
-
-            const brandLocator = productNameAndBrandCell.locator('ul').nth(0).locator('li').nth(0)
-            const textFromBrandLocator = await brandLocator.textContent()
-            expect(textFromBrandLocator.trim().toLowerCase()).toEqual(productOfRow.brand.trim().toLowerCase())
-
-            const totalPrice = await this.productPricesAndQuantity.nth(j).locator('div').nth(0).textContent()
-            logger.info(`checkProductPricesInCart totalPrice ${totalPrice}`)
-            expect(parseFloatPrice(parsePriceWithCurrencySymbol(totalPrice))).toEqual(parseFloatPrice(parsePriceWithCurrencySymbol(productOfRow.total)))
-
-            const quantityAndPrice = await this.productPricesAndQuantity.nth(j).locator('div').nth(1).textContent()
-            const {quantity, price} = matchQuantityAndPrice(quantityAndPrice)
-            expect(price).toEqual(parseFloatPrice(parsePriceWithCurrencySymbol(productOfRow.price)))
-            expect(quantity).toEqual(productOfRow.quantity)
-            j++
-        }
-    }
-
-    async checkSubtotalAndTaxInCart(products: ProductWithBrandAndName[], isEuropeanUnion: boolean, isSelfPickup: boolean) {
-         const formattedWorkspaceSubtotal = products.reduce((acc, product) => {
-            acc = acc + parseFloatPrice(parsePriceWithCurrencySymbol(product.total));
-            acc = Math.round(acc * 100)/100
-            return acc
-        }, 0)
-        
-        const cartSubtotalText = await this.cartTotalSub.textContent()
-        const cartSubtotal = parseFloatPrice(parsePriceWithCurrencySymbol(cartSubtotalText))
-
-        expect(cartSubtotal).toEqual(formattedWorkspaceSubtotal)
-
-        const tax = await this.cartTax.textContent()
-        logger.info(`tax checkout page assert ${tax}`)
-        const formattedTax = parseFloatPrice(parsePriceWithCurrencySymbol(tax))
-        logger.info(`tax checkout page assert formattedTax ${formattedTax}`)
-        const grandTotal = await this.cartTotalGrand.textContent()
-        const formattedGrandTotal = parseFloatPrice(parsePriceWithCurrencySymbol(grandTotal))
-
-        if (!isSelfPickup && isEuropeanUnion) {
-
-            await expect(async () => {
-                expect(formattedTax).not.toBe(0)
-            }).toPass({ intervals: [5000, 5000, 5000, 5000],
-                timeout: 30000});
-
-            expect(formattedGrandTotal).toEqual(formattedWorkspaceSubtotal + formattedTax)
-            expect(formattedGrandTotal).toEqual(cartSubtotal + formattedTax)
-
-        } else {
-
-            expect(formattedTax).toEqual(0)
-            expect(formattedGrandTotal).toEqual(formattedWorkspaceSubtotal)
-            expect(formattedGrandTotal).toEqual(cartSubtotal)
-        }
     }
 
     async placeOrderAndAsserIt(userPage: Page, isSuccessPlacingOrder: boolean) {

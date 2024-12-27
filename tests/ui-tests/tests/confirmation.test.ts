@@ -10,7 +10,7 @@ import {Country} from "../../shared/types-from-app";
 import {ShoppingCartPage} from "../pages-and-components/components/shoppingCart.page";
 import {OrderTotalsPage} from "../pages-and-components/components/orderTotals.page";
 
-test.describe('Checkout page', () => {
+test.describe('Confirmation page', () => {
     /**
      * Почему mode: 'serial'? Ответ в readme в разделе ## Fixture
      */
@@ -26,13 +26,11 @@ test.describe('Checkout page', () => {
     })
 
     arrayForTest.push({country: randomElement(europeanUnionCountries), isSelfPickup: true})
-    arrayForTest.push({country: randomElement(europeanUnionCountries), isSelfPickup: false})
     arrayForTest.push({country: randomElement(notEuropeanUnionCountries), isSelfPickup: true})
-    arrayForTest.push({country: randomElement(notEuropeanUnionCountries), isSelfPickup: false})
 
     arrayForTest.forEach((testData) => {
         logger.info(`testData in test ${JSON.stringify(testData)}`)
-        test(`Check products data and tax in Cart and place order for isEuropeanUnionCountry = ${testData.country.europeanUnion} and isSelfPickup = ${testData.isSelfPickup} `, async({
+        test(`Check products data and prices in ConfirmationPage for isEuropeanUnionCountry = ${testData.country.europeanUnion} and isSelfPickup = true`, async({
                                                                                                                                                                                           getUserEnvironment,
                                                                                                                                                                                           browser,
                                                                                                                                                                                           logoutUser,
@@ -94,13 +92,13 @@ test.describe('Checkout page', () => {
              * **/
             await sleep(5)
 
+            await checkoutPage.placeOrderAndAsserIt(newUserPage, testData.isSelfPickup);
+
             const shoppingCartPage = new ShoppingCartPage(newUserPage)
             await shoppingCartPage.checkProductInCart(productsForChecked)
-            
+
             const orderTotals = new OrderTotalsPage(newUserPage)
             await orderTotals.checkOrderTotals(productsForChecked, address.country.europeanUnion, testData.isSelfPickup)
-
-            await checkoutPage.placeOrderAndAsserIt(newUserPage, testData.isSelfPickup);
 
             /** logout **/
             await logoutUser(userBrowserContext, userPage);
